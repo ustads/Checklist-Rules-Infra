@@ -2,7 +2,7 @@
 
 > **Framework:** CIS AD Benchmark v3.0 | CIS Controls v8 | MITRE ATT&CK | OWASP WSTG v4.2 | CVSS v4.0  
 > **Generated:** 2026-03-30 / 2026-04-01  
-> **Scope:** Active Directory · DNS · Firewall · Back Office · H2H · SFTP · Mail Security · Endpoint Hardening
+> **Scope:** Active Directory · DNS · Firewall · Mail Security · Endpoint Hardening
 
 ---
 
@@ -54,16 +54,16 @@
 
 | # | Item | Command / Method | Threshold | Status |
 |---|------|-----------------|-----------|--------|
-| 1.1 | Enumerate semua domain user | `Get-ADUser -Filter * -Properties *` | Semua user terdaftar | ✅ Done |
-| 1.2 | User dengan atribut sensitif (SPN, adminCount) | `Get-ADUser -Filter {adminCount -eq 1} -Properties *` | adminCount=1 harus minimum | ⚠️ Finding |
-| 1.3 | Enumerate semua domain group | `Get-ADGroup -Filter * \| Select Name` | Periksa group non-standar | ✅ Done |
-| 1.4 | Member per group (terutama privileged) | `Get-ADGroupMember -Identity 'Domain Admins' -Recursive` | DA < 5 akun ideal | ⚠️ Finding |
-| 1.5 | Null Bind Testing | `ldapsearch -x -H ldap://<TARGET>:389 -b "" -s base "(objectclass=*)"` | Checking Unauthenticated Access | ✅ Done |
-| 1.6 | User dengan Password Never Expires | `Get-ADUser -Filter {PasswordNeverExpires -eq $true}` | Harus 0 atau minimum (service acct) | ⚠️ Finding |
-| 1.7 | Stale/disabled accounts (>90 hari tidak login) | `Search-ADAccount -AccountInactive -TimeSpan 90` | Harus di-disable/delete | ⚠️ Finding |
-| 1.8 | BloodHound collection (All methods) | `SharpHound.exe --CollectionMethods All --ZipFileName output.zip` | Jalankan dari domain-joined host | ✅ Done |
-| 1.9 | Computer accounts & OS inventory | `Get-ADComputer -Filter * -Properties OperatingSystem,LastLogonDate` | EOL OS harus terisolasi | ⚠️ Finding |
-| 1.10 | User dengan SID History | `Get-ADUser -Filter {SIDHistory -like '*'} -Properties SIDHistory` | SIDHistory = potensi privilege escalation | ✅ Done |
+| 1.1 | Enumerate semua domain user | `Get-ADUser -Filter * -Properties *` | Semua user terdaftar |  |
+| 1.2 | User dengan atribut sensitif (SPN, adminCount) | `Get-ADUser -Filter {adminCount -eq 1} -Properties *` | adminCount=1 harus minimum |  |
+| 1.3 | Enumerate semua domain group | `Get-ADGroup -Filter * \| Select Name` | Periksa group non-standar |  |
+| 1.4 | Member per group (terutama privileged) | `Get-ADGroupMember -Identity 'Domain Admins' -Recursive` | DA < 5 akun ideal |  |
+| 1.5 | Null Bind Testing | `ldapsearch -x -H ldap://<TARGET>:389 -b "" -s base "(objectclass=*)"` | Checking Unauthenticated Access |  |
+| 1.6 | User dengan Password Never Expires | `Get-ADUser -Filter {PasswordNeverExpires -eq $true}` | Harus 0 atau minimum (service acct) |  |
+| 1.7 | Stale/disabled accounts (>90 hari tidak login) | `Search-ADAccount -AccountInactive -TimeSpan 90` | Harus di-disable/delete |  |
+| 1.8 | BloodHound collection (All methods) | `SharpHound.exe --CollectionMethods All --ZipFileName output.zip` | Jalankan dari domain-joined host |  |
+| 1.9 | Computer accounts & OS inventory | `Get-ADComputer -Filter * -Properties OperatingSystem,LastLogonDate` | EOL OS harus terisolasi |  |
+| 1.10 | User dengan SID History | `Get-ADUser -Filter {SIDHistory -like '*'} -Properties SIDHistory` | SIDHistory = potensi privilege escalation |  |
 
 **Temuan Kritis:** 4 item finding — akun admin terlalu banyak, Password Never Expires, stale accounts, dan EOL OS.
 
