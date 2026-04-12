@@ -22,7 +22,6 @@
 4. [Security Hardening — macOS & Windows](#4-security-hardening--macos--windows)
    - [4.1 macOS Hardening](#41-macos-hardening)
    - [4.2 Windows Hardening](#42-windows-hardening)
-5. [Ringkasan Temuan & Prioritas Remediasi](#5-ringkasan-temuan--prioritas-remediasi)
 
 ---
 
