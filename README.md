@@ -1,5 +1,3 @@
----
-
 ## ⚠️ Beyond the Checklist — Cross-Domain Attack Chains
 
 > *"Bad checklists treat domains as silos. The real risk is in the connections."*
