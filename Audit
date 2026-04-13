@@ -18,7 +18,7 @@
 2. [DNS & Firewall](#2-dns-firewall)
    - [2.1 Firewall (FortiGate)](#21-firewall-fortigate)
    - [2.2 DNS](#22-dns)
-3. [Mail Security (Microsoft 365)](#3-mail-security-microsoft-365)
+3. [Mail Security (Microsoft 365 / Google Workspace)](#3-mail-security)
 4. [Security Hardening — macOS & Windows](#4-security-hardening--macos--windows)
    - [4.1 macOS Hardening](#41-macos-hardening)
    - [4.2 Windows Hardening](#42-windows-hardening)
@@ -247,7 +247,7 @@ Note: nmap --script dns-zone-transfer,dns-recursion -p 53 192.168.x.x
 
 ---
 
-## 3. Mail Security (Microsoft 365 & Google Workspace)
+## 3. Mail Security (Microsoft 365)
 
 > **Framework:** OWASP WSTG-INFO-02, WSTG-CRYP-01, WSTG-ATHN-01 | CIS Control 1, 3, 6, 13  
 > **Total Item:** 47 (M365)
@@ -332,6 +332,132 @@ Note: nmap --script dns-zone-transfer,dns-recursion -p 53 192.168.x.x
 | 6.12 | Inactive user (90+ hari) diaudit & disuspend |  |
 | 6.13 | OAuth app dengan akses Mail.ReadWrite diaudit |  |
 | 6.14 | Distribution group tidak open-join |  |
+
+---
+
+# 3. Google Workspace — Mail Security Configuration Checklist
+
+> **Framework:** OWASP WSTG-INFO-02, WSTG-CRYP-01, WSTG-ATHN-01 | CIS Controls v8 (Control 1, 3, 6, 13)  
+> **Platform:** Google Workspace / Gmail  
+> **Total Items:** 47 | **Phases:** 6  
+> **Identifikasi Awal:** `nslookup -type=mx target.co.id`
+
+---
+
+## Fase 1 — Inventory & Service Exposure
+
+> **Objective:** Identifikasi semua layanan email aktif dan pastikan tidak ada exposure yang tidak perlu.
+
+| # | Yang Dicek | Lokasi Admin Portal | Expected Result | Status | Severity |
+|---|-----------|-------------------|----------------|--------|----------|
+| 1.1 | Inbound gateway dikonfigurasi benar / dinonaktifkan jika tidak pakai relay | Apps → Gmail → Advanced settings → Inbound gateway | IP spesifik, bukan open. Disable jika tidak dipakai | 🔍 Pending |  |
+| 1.2 | Outbound gateway tidak diarahkan ke server arbitrary | Apps → Gmail → Advanced settings → Outbound gateway | Kosong (direct ke Google) atau server spesifik yang diotorisasi | 🔍 Pending |  |
+| 1.3 | IMAP access dinonaktifkan untuk user yang tidak perlu | Apps → Gmail → IMAP access | OFF atau restricted per OU | 🔍 Pending |  |
+| 1.4 | POP access dinonaktifkan org-wide | Apps → Gmail → POP access | OFF org-wide | 🔍 Pending |  |
+| 1.5 | Less Secure Apps (LSA) diblokir org-wide | Security → Less secure apps → Disable LSA | Disabled for all | 🔍 Pending |  |
+| 1.6 | MX record mengarah ke Google server (priority 1 = aspmx.l.google.com) | Admin Console → Domains → DNS → MX records | Priority 1: `aspmx.l.google.com` | 🔍 Pending |  |
+
+**Verification command:**
+```bash
+nslookup -type=mx yourdomain.com
+dig MX yourdomain.com
+```
+
+---
+
+## Fase 2 — TLS / Enkripsi Konfigurasi
+
+> **Objective:** Pastikan semua komunikasi email menggunakan enkripsi yang kuat dan tidak ada celah downgrade.
+
+| # | Yang Dicek | Lokasi Admin Portal | Expected Result | Status | Severity |
+|---|-----------|-------------------|----------------|--------|----------|
+| 2.1 | TLS enforcement aktif untuk partner domain kritis (inbound) | Apps → Gmail → Compliance → Secure transport (TLS) → Inbound | Rule aktif: require TLS untuk domain sensitif | 🔍 Pending |  |
+| 2.2 | TLS enforcement untuk outbound email ke partner spesifik | Apps → Gmail → Compliance → Secure transport → Outbound | Cek domain yang wajib TLS dikonfigurasi | 🔍 Pending |  |
+| 2.3 | S/MIME diaktifkan untuk enkripsi end-to-end (jika perlu compliance) | Apps → Gmail → User settings → S/MIME | Aktif jika ada kebutuhan regulasi/compliance | 🔍 Pending |  |
+| 2.4 | MTA-STS DNS record dikonfigurasi (mode: enforce) | DNS `_mta-sts.domain` + `mta-sts.domain` HTTPS file | `mode: enforce`, bukan `testing` | 🔍 Pending |  |
+| 2.5 | TLS-RPT record ada di DNS | DNS `_smtp._tls.domain` TXT | `v=TLSRPTv1; rua=mailto:...` | 🔍 Pending |  |
+
+**Verification commands:**
+```bash
+# Cek MTA-STS
+dig TXT _mta-sts.yourdomain.com
+curl https://mta-sts.yourdomain.com/.well-known/mta-sts.txt
+
+# Cek TLS-RPT
+dig TXT _smtp._tls.yourdomain.com
+```
+
+---
+
+## Fase 3 — Autentikasi
+
+> **Objective:** Pastikan semua akun terlindungi dengan MFA yang kuat dan session management yang tepat.
+
+| # | Yang Dicek | Lokasi Admin Portal | Expected Result | Status | Severity |
+|---|-----------|-------------------|----------------|--------|----------|
+| 3.1 | 2-Step Verification (2SV) enforced org-wide | Security → 2-Step Verification → Enforcement | On for all users | 🔍 Pending |  |
+| 3.2 | Enforcement date 2SV sudah berlaku (enrollment > 95%) | Security → 2-Step Verification → Enrollment | Enrollment > 95% dari total user | 🔍 Pending |  |
+| 3.3 | Super Admin menggunakan hardware security key | Security → 2SV → Advanced settings | Require security key for admins | 🔍 Pending |  |
+| 3.4 | Allowed 2SV methods diaudit — tidak hanya SMS | Security → 2-Step Verification → Methods | Authenticator app / hardware key preferred, bukan SMS saja | 🔍 Pending |  |
+| 3.5 | Google session control dikonfigurasi (max reauth period) | Security → Google session control | Max session: 8–24 jam untuk admin | 🔍 Pending |  |
+| 3.6 | Account recovery dikontrol admin (bukan user sendiri) | Security → Account recovery | Admin-only recovery aktif | 🔍 Pending |  |
+| 3.7 | Password policy: min length, complexity, no reuse 5 terakhir | Security → Password management | Min 12 karakter, tidak bisa reuse 5 password terakhir | 🔍 Pending |  |
+| 3.8 | Login challenge aktif untuk suspicious sign-in | Security → Login challenges | Aktif org-wide | 🔍 Pending |  |
+| 3.9 | Sign-in audit: cek login anomali / impossible travel 30 hari terakhir | Security → Investigation tool → Login events | Tidak ada impossible travel / brute force unresolved | 🔍 Pending |  |
+
+---
+
+## Fase 4 — Relay & Mail Flow Config
+
+> **Objective:** Pastikan tidak ada jalur email yang tidak terkontrol — terutama auto-forward dan SMTP relay terbuka.
+
+| # | Yang Dicek | Lokasi Admin Portal | Expected Result | Status | Severity |
+|---|-----------|-------------------|----------------|--------|----------|
+| 4.1 | Auto-forwarding ke external dinonaktifkan org-wide | Apps → Gmail → Advanced settings → Disable automatic forwarding | Disabled | 🔍 Pending |  |
+| 4.2 | Routing rules tidak ada yang forward ke external tanpa kontrol | Apps → Gmail → Advanced settings → Routing | Audit semua routing rule, tidak ada rule forward tanpa justifikasi | 🔍 Pending | L |
+| 4.3 | Default routing tidak expose email ke pihak ketiga | Apps → Gmail → Default routing | Hanya ke user internal atau allowed relay | 🔍 Pending |  |
+| 4.4 | Email whitelist (bypass spam filter) tidak menggunakan whole domain | Apps → Gmail → Advanced settings → Email whitelist | Hanya IP spesifik authorized sender, bukan `*@domain` | 🔍 Pending |  |
+| 4.5 | Approved senders untuk bypass spam diaudit | Apps → Gmail → Spam settings → Approved senders | Tidak ada whole-domain bypass tanpa justifikasi | 🔍 Pending |  |
+| 4.6 | SMTP relay service restricted ke authorized IP / require SMTP auth | Apps → Gmail → Advanced settings → SMTP relay service | Restricted to registered IP / require SMTP authentication | 🔍 Pending |  |
+| 4.7 | Comprehensive mail storage diaktifkan | Apps → Gmail → Advanced settings → Comprehensive mail storage | Enabled — semua mail ter-backup ke Gmail | 🔍 Pending |  |
+
+---
+
+## Fase 5 — SPF / DKIM / DMARC
+
+> **Objective:** Pastikan autentikasi email terverifikasi dari sisi DNS untuk mencegah spoofing dan phishing.
+
+| # | Yang Dicek | Lokasi Admin Portal | Expected Result | Status | Severity |
+|---|-----------|-------------------|----------------|--------|----------|
+| 5.1 | DKIM signing diaktifkan via Admin Console | Apps → Gmail → Authenticate email | Status: `Authenticating email` aktif | 🔍 Pending |  |
+| 5.2 | DKIM key length 2048-bit (bukan 1024) | Apps → Gmail → Authenticate email → Generate new record | Key length: 2048 | 🔍 Pending |  |
+| 5.3 | SPF record mencakup Google server | Apps → Gmail → Setup guide → SPF / DNS check | `include:_spf.google.com` ada di record | 🔍 Pending |  |
+| 5.4 | SPF tidak menggunakan +all (allow all) | DNS TXT record audit | `-all` atau `~all`. CRITICAL jika `+all` | 🔍 Pending |  |
+| 5.5 | DMARC policy dikonfigurasi (bukan p=none) | DNS record `_dmarc.domain` TXT | `p=quarantine` atau `p=reject` | 🔍 Pending |  |
+| 5.6 | DMARC reporting aktif — rua/ruf mengarah ke mailbox dimonitor | `_dmarc` TXT → `rua=` dan `ruf=` | Mengarah ke mailbox yang aktif dimonitor | 🔍 Pending |  |
+| 5.7 | Semua domain aktif punya SPF+DKIM (termasuk subdomain) | Admin Console → Domains → audit semua domain | Setiap domain aktif punya SPF+DKIM terkonfigurasi | 🔍 Pending |  |
+| 5.8 | Inbound gateway preserve SPF (jika ada relay sebelum GWS) | Apps → Gmail → Inbound gateway → Tag headers | Tag headers aktif untuk preserve SPF | 🔍 Pending |  |
+
+---
+
+## Fase 6 — Least Privilege Access
+
+> **Objective:** Pastikan hak akses admin dan user Gmail dibatasi sesuai prinsip least privilege.
+
+| # | Yang Dicek | Lokasi Admin Portal | Expected Result | Status | Severity |
+|---|-----------|-------------------|----------------|--------|----------|
+| 6.1 | Super Admin ≤ 3 akun total | Admin Console → Account → Admin roles → Super Admin | Minimal, maksimal 3 akun Super Admin | 🔍 Pending |  |
+| 6.2 | Admin menggunakan dedicated account terpisah dari akun kerja | Admin Console → Admin roles → [role members] | Email admin tidak sama dengan email kerja sehari-hari | 🔍 Pending |  |
+| 6.3 | Custom admin roles digunakan (bukan semua Super Admin) | Admin Console → Account → Admin roles | Ada role terpisah: Groups Admin, User Admin, dst. | 🔍 Pending |  |
+| 6.4 | Multi-party approval (MPA) aktif untuk aksi admin kritikal | Security → Multi-party approval | Enabled — aksi sensitif perlu approval 2 admin | 🔍 Pending |  |
+| 6.5 | Email delegation diaudit — akses mailbox orang lain terjustifikasi | Apps → Gmail → User settings → Mail delegation | Hanya PA/sekretaris dengan justifikasi bisnis | 🔍 Pending |  |
+| 6.6 | Groups: join policy tidak open untuk semua orang | Apps → Google Groups → Sharing settings | `Who can join` = Invited users only | 🔍 Pending |  |
+| 6.7 | Groups: tidak bisa diposting oleh public (external posting) | Google Groups → Sharing → Who can post | Internal members atau managers only | 🔍 Pending |  |
+| 6.8 | OAuth app dengan akses `mail.google.com` scope diaudit | Security → API Controls → Manage Third-Party Access | Hanya app yang diotorisasi bisnis oleh IT/Security | 🔍 Pending |  |
+| 6.9 | OAuth app baru wajib disetujui admin sebelum bisa akses Gmail | Security → API Controls → App access control | Setting: `Trust only internal apps` atau admin-approved | 🔍 Pending |  |
+| 6.10 | Inactive user (90+ hari tidak login) disuspend | Directory → Users → Filter: Last sign-in > 90 days | Suspend atau delete akun | 🔍 Pending |  |
+| 6.11 | External sharing email dikontrol (jika butuh restrict domain) | Apps → Gmail → Advanced → Restrict delivery | Hanya kirim/terima dari domain di-whitelist jika diperlukan | 🔍 Pending |  |
+| 6.12 | User tidak bisa ubah nama tampilan sendiri (bypass impersonation) | Directory → Users → Profile editing rights | Admin-controlled, user tidak bisa edit display name | 🔍 Pending |  |
 
 ---
 
