@@ -25,18 +25,6 @@
 
 ---
 
-## Legend Status
-
-| Status | Keterangan |
-|--------|-----------|
-| ✅ Done / Pass | Selesai — tidak ada temuan |
-| ⚠️ Finding / Warning | Ada temuan / issue yang perlu ditangani |
-| ➖ N/A | Tidak applicable di environment ini |
-| 🔍 Butuh Verifikasi | Perlu pengecekan lanjutan |
-| ❌ Fail | Konfigurasi tidak sesuai, perlu remediasi |
-
----
-
 ## 1. AD Security Assessment
 
 > **Referensi:** CIS AD Benchmark v3.0 | CIS Controls v8 | MITRE ATT&CK  
@@ -157,13 +145,13 @@
 |---|-----------|-----------|--------|---------|
 | 6.1 | AD CS terdeploy? | — |  | |
 | 6.2 | Enumerate Certificate Templates | — |  | |
-| 6.3 | **ESC1** — Enrollee supplies SAN + low-priv enroll | HIGH |  | Privesc ke DA via SAN |
-| 6.4 | **ESC2** — Any Purpose EKU atau no EKU | CRITICAL |  | Certificate abuse |
-| 6.5 | **ESC3** — Certificate Request Agent EKU | HIGH |  | |
-| 6.6 | **ESC4** — Vulnerable template ACL (GenericWrite) | HIGH |  | |
-| 6.7 | **ESC6** — EDITF_ATTRIBUTESUBJECTALTNAME2 | CRITICAL |  | |
-| 6.8 | **ESC7** — Vulnerable CA ACL | CRITICAL |  | |
-| 6.9 | **ESC8** — NTLM relay to AD CS HTTP | HIGH |  | |
+| 6.3 | **ESC1** — Enrollee supplies SAN + low-priv enroll |  |  | Privesc ke DA via SAN |
+| 6.4 | **ESC2** — Any Purpose EKU atau no EKU |  |  | Certificate abuse |
+| 6.5 | **ESC3** — Certificate Request Agent EKU |  |  | |
+| 6.6 | **ESC4** — Vulnerable template ACL (GenericWrite) |  |  | |
+| 6.7 | **ESC6** — EDITF_ATTRIBUTESUBJECTALTNAME2 |  |  | |
+| 6.8 | **ESC7** — Vulnerable CA ACL |  |  | |
+| 6.9 | **ESC8** — NTLM relay to AD CS HTTP |  |  | |
 | 6.10 | CRL Distribution Point accessibility | — |  | |
 | 6.11 | Certificate validity period (high-priv) | — |  | Administrator |
 | 6.12 | CA berjalan di DC? | CRITICAL (blast radius max) |  | |
@@ -269,81 +257,81 @@ Note: nmap --script dns-zone-transfer,dns-recursion -p 53 192.168.x.x
 
 | # | Yang Dicek | Status | Severity | Catatan |
 |---|-----------|--------|----------|---------|
-| 1.1 | Connector inbound — hanya IP/domain authorized | EAC → Mail flow → Connectors | HIGH | Tidak ada connector dengan source '*' atau open |
-| 1.2 | Connector outbound — TLS required | EAC → Mail flow → Connectors | HIGH | TLS required, scope domain spesifik |
-| 1.3 | Auto-forward ke external dinonaktifkan | EAC → Mail flow → Remote domains → Default | CRITICAL | Auto-forward: Disabled |
-| 1.4 | Accepted domains — hanya domain milik organisasi | EAC → Mail flow → Accepted domains | MEDIUM | hanya izinkan IP spesifik organisasi |
-| 1.5 | SMTP relay — tidak open relay | EAC → Connectors → Inbound source | CRITICAL | Restricted to specific IP/certificate |
-| 1.6 | Legacy protokol POP/IMAP dinonaktifkan | EAC → Settings → Mail flow → IMAP/POP | HIGH | Disabled jika tidak ada kebutuhan bisnis |
+| 1.1 | Connector inbound — hanya IP/domain authorized | EAC → Mail flow → Connectors |  | Tidak ada connector dengan source '*' atau open |
+| 1.2 | Connector outbound — TLS required | EAC → Mail flow → Connectors |  | TLS required, scope domain spesifik |
+| 1.3 | Auto-forward ke external dinonaktifkan | EAC → Mail flow → Remote domains → Default |  | Auto-forward: Disabled |
+| 1.4 | Accepted domains — hanya domain milik organisasi | EAC → Mail flow → Accepted domains |  | hanya izinkan IP spesifik organisasi |
+| 1.5 | SMTP relay — tidak open relay | EAC → Connectors → Inbound source |  | Restricted to specific IP/certificate |
+| 1.6 | Legacy protokol POP/IMAP dinonaktifkan | EAC → Settings → Mail flow → IMAP/POP |  | Disabled jika tidak ada kebutuhan bisnis |
 
 ### Fase 2 — TLS / Enkripsi
 
 | # | Yang Dicek | Status | Severity | Catatan |
 |---|-----------|--------|----------|---------|
-| 2.1 | TLS enforced di connector inbound | EAC → Connectors → [connector] → Security → TLS | HIGH | 'Require TLS' dicentang, bukan optional |
-| 2.2 | TLS enforced di connector outbound | EAC → Connectors → Outbound → TLS settings | HIGH | Force TLS untuk partner domain sensitif |
-| 2.3 | TLS enforcement per remote domain partner kritis | EAC → Mail flow → Remote domains → [domain] → TLS | MEDIUM | TLS required untuk domain kritis |
-| 2.4 | MTA-STS policy dikonfigurasi | DNS record _mta-sts.domain + HTTPS policy file | MEDIUM | 'mode: enforce' bukan 'testing' |
-| 2.5 | Opportunistic TLS aktif untuk email keluar | EAC → Connectors → Default outbound | MEDIUM | 'Use opportunistic TLS' aktif minimal |
-| 2.6 | Certificate connector valid, bukan self-signed | EAC → Connectors → [connector] → Certificate | HIGH | Issued by trusted CA, tidak expired |
+| 2.1 | TLS enforced di connector inbound | EAC → Connectors → [connector] → Security → TLS |  | 'Require TLS' dicentang, bukan optional |
+| 2.2 | TLS enforced di connector outbound | EAC → Connectors → Outbound → TLS settings |  | Force TLS untuk partner domain sensitif |
+| 2.3 | TLS enforcement per remote domain partner kritis | EAC → Mail flow → Remote domains → [domain] → TLS |  | TLS required untuk domain kritis |
+| 2.4 | MTA-STS policy dikonfigurasi | DNS record _mta-sts.domain + HTTPS policy file |  | 'mode: enforce' bukan 'testing' |
+| 2.5 | Opportunistic TLS aktif untuk email keluar | EAC → Connectors → Default outbound |  | 'Use opportunistic TLS' aktif minimal |
+| 2.6 | Certificate connector valid, bukan self-signed | EAC → Connectors → [connector] → Certificate |  | Issued by trusted CA, tidak expired |
 
 ### Fase 3 — Autentikasi
 
 | # | Yang Dicek | Status | Severity | Catatan |
 |---|-----------|--------|----------|---------|
-| 3.1 | Basic Authentication dinonaktifkan org-wide | EAC → Settings → Modern auth → Disable legacy auth | CRITICAL | Semua legacy auth: OFF |
-| 3.2 | Authentication Policy — blokir IMAP/POP basic auth | EAC → Settings → Auth policies | CRITICAL | Policy berlaku ke semua user, tidak ada exclusion |
-| 3.3 | Modern Authentication (OAuth 2.0) diaktifkan | M365 Admin Center → Settings → Org settings → Modern auth | HIGH | Status: Enabled |
-| 3.4 | MFA enforced semua user via Conditional Access | Entra ID → Security → Conditional Access → Policies | CRITICAL | Policy aktif, tidak ada exclusion berlebihan |
-| 3.5 | CA: block login dari negara/IP berisiko | Entra ID → CA → Named locations | HIGH | Location-based policy aktif |
-| 3.6 | CA: block semua legacy auth protocol | Entra ID → CA → Client apps → Legacy auth clients | CRITICAL | Block all legacy auth via CA policy |
-| 3.7 | Sign-in risk policy aktif (Entra ID Protection) | Entra ID → Security → Identity Protection → Sign-in risk | HIGH | Medium risk → MFA, High → Block |
-| 3.8 | SSPR dikonfigurasi aman (min 2 auth method) | Entra ID → Password reset → Auth methods | MEDIUM | Minimal 2 method, bukan SMS saja |
-| 3.9 | IMAP/POP dinonaktifkan per-user | EAC → Recipients → Mailboxes → [user] → Manage email apps | HIGH | IMAP: OFF, POP: OFF per user |
-| 3.10 | Audit sign-in anomali 30 hari terakhir | Entra ID → Sign-in logs → Filter: Failure/risky | HIGH | Tidak ada login anomali unresolved |
+| 3.1 | Basic Authentication dinonaktifkan org-wide | EAC → Settings → Modern auth → Disable legacy auth |  | Semua legacy auth: OFF |
+| 3.2 | Authentication Policy — blokir IMAP/POP basic auth | EAC → Settings → Auth policies |  | Policy berlaku ke semua user, tidak ada exclusion |
+| 3.3 | Modern Authentication (OAuth 2.0) diaktifkan | M365 Admin Center → Settings → Org settings → Modern auth |  | Status: Enabled |
+| 3.4 | MFA enforced semua user via Conditional Access | Entra ID → Security → Conditional Access → Policies |  | Policy aktif, tidak ada exclusion berlebihan |
+| 3.5 | CA: block login dari negara/IP berisiko | Entra ID → CA → Named locations |  | Location-based policy aktif |
+| 3.6 | CA: block semua legacy auth protocol | Entra ID → CA → Client apps → Legacy auth clients |  | Block all legacy auth via CA policy |
+| 3.7 | Sign-in risk policy aktif (Entra ID Protection) | Entra ID → Security → Identity Protection → Sign-in risk |  | Medium risk → MFA, High → Block |
+| 3.8 | SSPR dikonfigurasi aman (min 2 auth method) | Entra ID → Password reset → Auth methods |  | Minimal 2 method, bukan SMS saja |
+| 3.9 | IMAP/POP dinonaktifkan per-user | EAC → Recipients → Mailboxes → [user] → Manage email apps |  | IMAP: OFF, POP: OFF per user |
+| 3.10 | Audit sign-in anomali 30 hari terakhir | Entra ID → Sign-in logs → Filter: Failure/risky |  | Tidak ada login anomali unresolved |
 
 ### Fase 4 — Relay & Mail Flow Config
 
 | # | Yang Dicek | Status | Severity | Catatan |
 |---|-----------|--------|----------|---------|
-| 4.1 | Tidak ada transport rule forward ke external | EAC → Mail flow → Rules → filter 'redirect/forward' | CRITICAL | Zero rule forward ke external domain bebas |
-| 4.2 | Transport rule block attachment berbahaya (.exe, .js, .vbs) | EAC → Mail flow → Rules | HIGH | Rule aktif untuk extension berbahaya |
-| 4.3 | Remote domain Default — auto-forward dinonaktifkan | EAC → Mail flow → Remote domains → Default → Auto forward | CRITICAL | Disabled |
-| 4.4 | Outbound spam policy — batas email dikonfigurasi | M365 Security Portal → Policies → Anti-spam → Outbound | MEDIUM | Threshold set (default: 500/hour) |
-| 4.5 | Alert ke admin jika user terkena limit | Anti-spam outbound → Notify these users/admins | MEDIUM | Alert email ke admin aktif |
-| 4.6 | Connector inbound hanya dari IP/cert tertentu | EAC → Connectors → Inbound → Sender domain/IP range | HIGH | Tidak '*' atau open |
-| 4.7 | Tidak ada bypass SafeLinks/SafeAttachments tanpa justifikasi | EAC → Rules → Header/SCL bypass | HIGH | Audit semua SCL=-1 rule, ada dokumentasi |
+| 4.1 | Tidak ada transport rule forward ke external | EAC → Mail flow → Rules → filter 'redirect/forward' |  | Zero rule forward ke external domain bebas |
+| 4.2 | Transport rule block attachment berbahaya (.exe, .js, .vbs) | EAC → Mail flow → Rules |  | Rule aktif untuk extension berbahaya |
+| 4.3 | Remote domain Default — auto-forward dinonaktifkan | EAC → Mail flow → Remote domains → Default → Auto forward |  | Disabled |
+| 4.4 | Outbound spam policy — batas email dikonfigurasi | M365 Security Portal → Policies → Anti-spam → Outbound |  | Threshold set (default: 500/hour) |
+| 4.5 | Alert ke admin jika user terkena limit | Anti-spam outbound → Notify these users/admins |  | Alert email ke admin aktif |
+| 4.6 | Connector inbound hanya dari IP/cert tertentu | EAC → Connectors → Inbound → Sender domain/IP range |  | Tidak '*' atau open |
+| 4.7 | Tidak ada bypass SafeLinks/SafeAttachments tanpa justifikasi | EAC → Rules → Header/SCL bypass |  | Audit semua SCL=-1 rule, ada dokumentasi |
 
 ### Fase 5 — SPF / DKIM / DMARC
 
 | # | Yang Dicek | Status | Severity | Catatan |
 |---|-----------|--------|----------|---------|
-| 5.1 | SPF record dikonfigurasi di DNS domain | M365 Admin Center → Settings → Domains → [domain] → DNS records | HIGH | Tidak ditemukan ~all atau +all |
-| 5.2 | SPF menggunakan -all (hardFail) | M365 Admin Center → Domains → DNS check | HIGH | -all (hardFail). CRITICAL jika +all |
-| 5.3 | DKIM signing diaktifkan | Security Portal → Email & collab → DKIM | HIGH | Status: Enabled untuk semua domain |
-| 5.4 | DKIM selector1 dan selector2 ada di DNS | M365 Admin Center → Domains → DNS records | MEDIUM | Kedua CNAME record ada |
-| 5.5 | DMARC record ada dan policy bukan 'none' | DNS → _dmarc.domain TXT record | HIGH | p=quarantine atau p=reject |
-| 5.6 | DMARC reporting (rua) mengarah ke mailbox aktif | _dmarc TXT record → rua= field | MEDIUM | rua=mailto:dmarc@domain.com valid & dimonitor |
-| 5.7 | Semua layanan pengirim ada di SPF include | Audit semua layanan outbound email | MEDIUM | Semua authorized sender included di SPF |
+| 5.1 | SPF record dikonfigurasi di DNS domain | M365 Admin Center → Settings → Domains → [domain] → DNS records |  | Tidak ditemukan ~all atau +all |
+| 5.2 | SPF menggunakan -all (hardFail) | M365 Admin Center → Domains → DNS check |  | -all (hardFail). CRITICAL jika +all |
+| 5.3 | DKIM signing diaktifkan | Security Portal → Email & collab → DKIM |  | Status: Enabled untuk semua domain |
+| 5.4 | DKIM selector1 dan selector2 ada di DNS | M365 Admin Center → Domains → DNS records |  | Kedua CNAME record ada |
+| 5.5 | DMARC record ada dan policy bukan 'none' | DNS → _dmarc.domain TXT record |  | p=quarantine atau p=reject |
+| 5.6 | DMARC reporting (rua) mengarah ke mailbox aktif | _dmarc TXT record → rua= field |  | rua=mailto:dmarc@domain.com valid & dimonitor |
+| 5.7 | Semua layanan pengirim ada di SPF include | Audit semua layanan outbound email |  | Semua authorized sender included di SPF |
 
 ### Fase 6 — Least Privilege Access
 
 | # | Yang Dicek | Severity |
 |---|-----------|----------|
-| 6.1 | Global Admin ≤ 3–5 akun | HIGH |
-| 6.2 | Admin menggunakan dedicated account | HIGH |
-| 6.3 | Admin account tidak punya Exchange mailbox aktif | HIGH |
-| 6.4 | Role Exchange Admin tidak di-assign ke user non-IT | HIGH |
-| 6.5 | PIM aktif — admin role JIT | HIGH |
-| 6.6 | Full Access mailbox permissions diaudit | HIGH |
-| 6.7 | Send As permissions diaudit | MEDIUM |
-| 6.8 | Shared mailbox login diblokir | HIGH |
-| 6.9 | Inbox rules forward ke external diaudit | CRITICAL |
-| 6.10 | Auto-forward per-mailbox dinonaktifkan | CRITICAL |
-| 6.11 | Guest user tidak punya akses Exchange | MEDIUM |
-| 6.12 | Inactive user (90+ hari) diaudit & disuspend | MEDIUM |
-| 6.13 | OAuth app dengan akses Mail.ReadWrite diaudit | HIGH |
-| 6.14 | Distribution group tidak open-join | MEDIUM |
+| 6.1 | Global Admin ≤ 3–5 akun |  |
+| 6.2 | Admin menggunakan dedicated account |  |
+| 6.3 | Admin account tidak punya Exchange mailbox aktif |  |
+| 6.4 | Role Exchange Admin tidak di-assign ke user non-IT |  |
+| 6.5 | PIM aktif — admin role JIT |  |
+| 6.6 | Full Access mailbox permissions diaudit |  |
+| 6.7 | Send As permissions diaudit |  |
+| 6.8 | Shared mailbox login diblokir |  |
+| 6.9 | Inbox rules forward ke external diaudit |  |
+| 6.10 | Auto-forward per-mailbox dinonaktifkan |  |
+| 6.11 | Guest user tidak punya akses Exchange |  |
+| 6.12 | Inactive user (90+ hari) diaudit & disuspend |  |
+| 6.13 | OAuth app dengan akses Mail.ReadWrite diaudit |  |
+| 6.14 | Distribution group tidak open-join |  |
 
 ---
 
