@@ -1,3 +1,5 @@
+<img width="1440" height="1312" alt="image" src="https://github.com/user-attachments/assets/2ccb1709-1e9c-4435-af2d-af0c584394cb" />
+
 ## ⚠️ Beyond the Checklist — Cross-Domain Attack Chains
 
 > *"Bad checklists treat domains as silos. The real risk is in the connections."*
